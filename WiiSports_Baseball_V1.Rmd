@@ -65,6 +65,7 @@ retro_sheet_column_names <- c(
 )
 ```
 
+## Let's load in the Data
 Dodgers 2023 Season
 ```{r}
 # dodgers_2023 = read.csv("/Users/bryanmongeserrano/Documents/Documents - Bryan’s M1 MacBook Air/HW for R/Dodgers/Dodgers-2023.csv", header = FALSE )
@@ -73,6 +74,18 @@ colnames(dodgers_2023) <- retro_sheet_column_names
 total_events = nrow(dodgers_2023)
 View(dodgers_2023)
 ```
+
+## Let's Add in Our Assumptions:
+```{r}
+# Remove All Double Plays and Triple Plays
+dodgers_2023 = dodgers_2023[dodgers_2023$outs_on_play < 2,]
+# Only Have Walks, Single, Doubles, Triples, and Homeruns, General Outs, Strikeouts
+dodgers_2023 <- subset(dodgers_2023, dodgers_2023$event_type == 2 | dodgers_2023$event_type == 3 | dodgers_2023$event_type == 14 
+                       | dodgers_2023$event_type == 20 | dodgers_2023$event_type == 21 | dodgers_2023$event_type == 22
+                       | dodgers_2023$event_type == 23)
+```
+
+
 
 ```{r}
 # Calculate The Total Number of Homeruns
@@ -85,17 +98,22 @@ for (i in 1:nrow(dodgers_2023)) {
 total_hrs
 ```
 
-Print Number of Total Events: This is basically going to be the denominator
+## Print Number of Total Events: This is basically going to be the denominator
 ```{r}
+total_events = nrow(dodgers_2023)
 total_events
 ```
 
-Let's Set Up the Wii Sports Baseball Matrix
+## Let's Set Up the Wii Sports Baseball Matrix
 ```{r}
-baseball_matrix<- matrix(0, nrow = 25, ncol = 25)
+# Before
+# baseball_matrix<- matrix(0, nrow = 25, ncol = 25)
+# After
+baseball_matrix<- matrix(0, nrow = 24, ncol = 25)
 baseball_matrix
 ```
 
+## Helper Functions to Populate Baseball Matrix
 This function will return a list that will contain the row and col index values so
 we can index into the baseball matrix (24 x 24) (with an additional row and column for the absorbing state) when iterating through the dataframe on the next cell.
 This function will handle all the events where there are no runners on base
@@ -459,7 +477,7 @@ This function will handle all the events where there are runners on first
 and second base
 
 
-Populate Baseball Matrix
+## Populate Baseball Matrix
 ```{r}
 for (i in 1:nrow(dodgers_2023)) {
   # No Runners on Base
@@ -563,11 +581,30 @@ for (i in 1:nrow(dodgers_2023)) {
 
 ```
 
+## Display Matrix with Event Counts
 ```{r}
 baseball_matrix
 ```
 
+## Obtain Probabilites
+```{r}
+sum_row_1 <- rowSums(baseball_matrix[1, , drop = FALSE])
+```
 
+## Display Baseball Matrix With Probabilities
+```{r}
+final_baseball_matrix = baseball_matrix
+for (i in 1:nrow(baseball_matrix)) {
+  current_row_sum <- rowSums(baseball_matrix[i, , drop = FALSE])
+  final_baseball_matrix[i, ] <- final_baseball_matrix[i, ] / current_row_sum
+}
+final_baseball_matrix
+```
 
+```{r}
+row_sums <- rowSums(final_baseball_matrix)
+```
 
-
+```{r}
+row_sums
+```
