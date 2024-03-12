@@ -210,9 +210,13 @@ This function will handle all the events where there are runners on second base
 ```{r}
 runner_on_second <- function(outs, event, outs_on_play) {
   from_index = 3 + (8 * outs)
+  # Event For Walk
+  if (event == 14) {
+    return (c(from_index, from_index + 2))
+  }
   # Event For Single
   if (event == 20 || event == 14) {
-    return (c(from_index, from_index + 2))
+    return (c(from_index, from_index + 3))
   }
   # Event For Double
   if (event == 21) {
@@ -392,8 +396,12 @@ This function will handle all the events where there are runners on second and t
 ```{r}
 runner_on_second_third <- function(outs, event, outs_on_play) {
   from_index = 7 + (8 * outs)
-  # Event For Single or Walk
-  if (event == 20 || event == 14) {
+  # Event For Walk
+  if (event == 14) {
+    return (c(from_index, from_index + 1))
+  }
+    # Event For Single
+  if (event == 20) {
     return (c(from_index, from_index - 1))
   }
   # Event For Double
