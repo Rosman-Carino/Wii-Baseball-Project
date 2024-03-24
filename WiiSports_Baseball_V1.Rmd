@@ -14,6 +14,8 @@ suppressPackageStartupMessages(library(latex2exp))
 suppressPackageStartupMessages(library(tidyverse)) #good library for data manipulation, includes dplyr and ggplot
 suppressPackageStartupMessages(library(retrosheet))
 suppressPackageStartupMessages(library(Lahman))
+suppressPackageStartupMessages(library(dplyr))
+
 
 # you can read more about the tidyverse at: https://r4ds.had.co.nz/
 knitr::opts_chunk$set(echo = TRUE)
@@ -65,14 +67,21 @@ retro_sheet_column_names <- c(
 )
 ```
 
-## Let's load in the Data
+## Let's Load in the Biography Data For All Players
+```{r}
+baseball_players = read.csv("/Users/rcarino/Documents/Stanford University - Academics/2023-2024 Academic Year/2024 Winter Quarter/STATS 100 Mathematics of Sports/Project/Dodgers Files 2010 - 2023/biofile.csv")
+head(baseball_players)
+```
+
+## Let's load in the Data (Baseball Season)
 Dodgers 2023 Season
 ```{r}
 # dodgers_2023 = read.csv("/Users/bryanmongeserrano/Documents/Documents - Bryan’s M1 MacBook Air/HW for R/Dodgers/Dodgers-2023.csv", header = FALSE )
 dodgers_2023 = read.csv("/Users/rcarino/Documents/Stanford University - Academics/2023-2024 Academic Year/2024 Winter Quarter/STATS 100 Mathematics of Sports/Project/Dodgers Files 2010 - 2023/Dodgers-2023.csv", header = FALSE )
 colnames(dodgers_2023) <- retro_sheet_column_names
 total_events = nrow(dodgers_2023)
-View(dodgers_2023)
+#View(dodgers_2023)
+head(dodgers_2023)
 ```
 
 ## Let's Add in Our Assumptions:
@@ -85,7 +94,20 @@ dodgers_2023 <- subset(dodgers_2023, dodgers_2023$event_type == 2 | dodgers_2023
                        | dodgers_2023$event_type == 23)
 ```
 
+## Let's Explore the Data
+```{r}
+#dodger_players = unique(dodgers_2023$batter)
+dodgers_players <- dodgers_2023 %>% filter(batting_team == 1) %>%  # Condition based on the 'Category' column 
+  distinct(batter)  # Extract unique values from the 'Value' column
+dodgers_players
+```
 
+## Let's look at Mookie Betts
+```{r}
+mookie_betts = baseball_players[baseball_players$PLAYERID == 'bettm001', ]
+mookie_betts
+
+```
 
 ```{r}
 # Calculate The Total Number of Homeruns
@@ -594,6 +616,145 @@ for (i in 1:nrow(dodgers_2023)) {
 baseball_matrix
 ```
 
+## Create Player Matrix (Mookie Betts)
+```{r}
+# for (i in 1:nrow(dodgers_2023)) {
+#   if (dodgers_2023$batter[i] == 'martj006') {
+#     # No Runners on Base
+#     if (dodgers_2023$first_runner[i] == ''
+#         && dodgers_2023$second_runner[i] == ''
+#         && dodgers_2023$third_runner[i] == '') {
+#       row_col = no_runners_on(dodgers_2023$outs[i],
+#                               dodgers_2023$event_type[i],
+#                               dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on First Base
+#     if (dodgers_2023$first_runner[i] != ''
+#         && dodgers_2023$second_runner[i] == ''
+#         && dodgers_2023$third_runner[i] == '') {
+#       row_col = runner_on_first(dodgers_2023$outs[i],
+#                                 dodgers_2023$event_type[i],
+#                                 dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on Second Base
+#     if (dodgers_2023$first_runner[i] == ''
+#         && dodgers_2023$second_runner[i] != ''
+#         && dodgers_2023$third_runner[i] == '') {
+#       row_col = runner_on_second(dodgers_2023$outs[i],
+#                                  dodgers_2023$event_type[i],
+#                                  dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on Third
+#     if (dodgers_2023$first_runner[i] == ''
+#         && dodgers_2023$second_runner[i] == ''
+#         && dodgers_2023$third_runner[i] != '') {
+#       row_col = runner_on_third(dodgers_2023$outs[i],
+#                                 dodgers_2023$event_type[i],
+#                                 dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on First & Second
+#     if (dodgers_2023$first_runner[i] != ''
+#         && dodgers_2023$second_runner[i] != ''
+#         && dodgers_2023$third_runner[i] == '') {
+#       row_col = runner_on_first_second(dodgers_2023$outs[i],
+#                                        dodgers_2023$event_type[i],
+#                                        dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on First & Third
+#     if (dodgers_2023$first_runner[i] != ''
+#         && dodgers_2023$second_runner[i] == ''
+#         && dodgers_2023$third_runner[i] != '') {
+#       row_col = runner_on_first_third(dodgers_2023$outs[i],
+#                                       dodgers_2023$event_type[i],
+#                                       dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on Second & Third
+#     if (dodgers_2023$first_runner[i] == ''
+#         && dodgers_2023$second_runner[i] != ''
+#         && dodgers_2023$third_runner[i] != '') {
+#       row_col = runner_on_second_third(dodgers_2023$outs[i],
+#                                        dodgers_2023$event_type[i],
+#                                        dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#     # Runner on First, Second, & Third
+#     if (dodgers_2023$first_runner[i] != ''
+#         && dodgers_2023$second_runner[i] != ''
+#         && dodgers_2023$third_runner[i] != '') {
+#       row_col = runner_on_first_second_third(dodgers_2023$outs[i],
+#                                              dodgers_2023$event_type[i],
+#                                              dodgers_2023$outs_on_play[i])
+#       row = row_col[1]
+#       col = row_col[2]
+#       if (row != 0 &&
+#           col != 0 &&
+#           row <= nrow(baseball_matrix) &&
+#           col <= ncol(baseball_matrix)) {
+#         baseball_matrix[row, col] <- baseball_matrix[row, col] + 1
+#       }
+#     }
+#   }
+# }
+
+
+```
+
+
 ## Obtain Probabilites
 ```{r}
 sum_row_1 <- rowSums(baseball_matrix[1, , drop = FALSE])
@@ -616,3 +777,10 @@ row_sums <- rowSums(final_baseball_matrix)
 ```{r}
 row_sums
 ```
+
+```{r}
+
+
+```
+
+
